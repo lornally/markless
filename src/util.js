@@ -1,6 +1,8 @@
 const vscode = require('vscode');
 const log = require('loglevel');
 const { state } = require('./state');
+const fs = require('fs');
+const path = require('path');
 
 function enableHoverImage(context) {
     context.subscriptions.push(vscode.languages.registerHoverProvider('markdown', {
@@ -142,6 +144,55 @@ const nodeToHtml = (() => {
     return (/** @type {import("unist").Node} */ node) => toHtml(toHast(node, {allowDangerousHtml: state.config.allowDangerousHtml}), {allowDangerousHtml: state.config.allowDangerousHtml});
 })();
 
-const path = require('path');
+function loadCustomStyle(context) {
+    const config = vscode.workspace.getConfiguration('markless');
+    const customStylePath = config.get('customStyle');
 
-module.exports = { DefaultMap, memoize, urlToUri, svgToUri, htmlToSvg, parser, nodeToHtml, texToSvg, enableHoverImage, path };
+    if (!customStylePath) return {};
+
+    try {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders) return {};
+
+        const fullPath = path.join(workspaceFolders[0].uri.fsPath, customStylePath);
+        if (!fs.existsSync(fullPath)) {
+            console.warn(`Custom style file not found: ${fullPath}`);
+            return {};
+        }
+
+        const cssContent = fs.readFileSync(fullPath, 'utf8');
+        return parseCssToDecorationRenderOptions(cssContent);
+    } catch (error) {
+        console.error('Error loading custom style:', error);
+        return {};
+    }
+}
+
+function parseCssToDecorationRenderOptions(css) {
+    // 简单的CSS解析实现
+    const decorationOptions = {};
+    const rules = css.split('}');
+
+    for (const rule of rules) {
+        const [selector, styles] = rule.split('{');
+        if (!selector || !styles) continue;
+
+        const trimmedSelector = selector.trim();
+        const styleObj = {};
+
+        styles.split(';').forEach(style => {
+            const [prop, value] = style.split(':').map(s => s.trim());
+            if (prop && value) {
+                styleObj[prop] = value;
+            }
+        });
+
+        if (Object.keys(styleObj).length > 0) {
+            decorationOptions[trimmedSelector] = styleObj;
+        }
+    }
+
+    return decorationOptions;
+}
+
+module.exports = { DefaultMap, memoize, urlToUri, svgToUri, htmlToSvg, parser, nodeToHtml, texToSvg, enableHoverImage, path, loadCustomStyle };

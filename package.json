@@ -183,6 +183,11 @@
 						"description": "render raw html",
 						"type": "boolean",
 						"default": false
+					},
+					"markless.customStyle": {
+						"description": "自定义样式文件的路径 (相对于工作区根目录)",
+						"type": "string",
+						"default": ""
 					}
 				}
 			}

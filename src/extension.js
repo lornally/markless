@@ -1,5 +1,5 @@
 const vscode = require('vscode');
-const { hideDecoration, transparentDecoration, getUrlDecoration, getSvgDecoration } = require('./common-decorations');
+const { hideDecoration, transparentDecoration, getUrlDecoration, getSvgDecoration, createRainbowDecoration, createListBulletDecoration, createCheckboxDecoration } = require('./common-decorations');
 const { state } = require('./state');
 const {  memoize, nodeToHtml, svgToUri, htmlToSvg, DefaultMap, texToSvg, enableHoverImage, path } = require('./util');
 const { triggerUpdateDecorations, addDecoration, posToRange, updateLogLevel }  = require('./runner');
@@ -147,14 +147,9 @@ function bootstrap(context) {
 				textDecoration: `; font-size: ${size}px; position: relative; top: 0.1em;`,
 			}));
 			const getlistRainbowDecoration = (() => {
-				const hueRotationMultiplier = [0, 5, 9, 2, 6, 7];
-				const getNonCyclicDecoration = memoize((level) => vscode.window.createTextEditorDecorationType({
-					textDecoration: (`; filter: hue-rotate(${hueRotationMultiplier[level] * 360 / 12}deg);`),
-				}));
-				return (level) => {
-					level = level % hueRotationMultiplier.length;
-					return getNonCyclicDecoration(level);
-				};
+				return memoize((level) => {
+					return createRainbowDecoration(level);
+				});
 			})();
 
 			return (start, end, node) => {
@@ -224,24 +219,10 @@ function bootstrap(context) {
 		})()]],
 		["list", ["listItem", (() => {
 			const getBulletDecoration = memoize((level) => {
-				return vscode.window.createTextEditorDecorationType({
-					color: "transparent",
-					textDecoration: "none; display: inline-block; width: 0;",
-					after: {
-						contentText: LIST_BULLETS[level % LIST_BULLETS.length],
-						fontWeight: "bold"
-					},
-				});
+				return createListBulletDecoration(level, LIST_BULLETS[level % LIST_BULLETS.length]);
 			});
 			const getCheckedDecoration = memoize((checked) => {
-				return vscode.window.createTextEditorDecorationType({
-					color: "transparent",
-					textDecoration: "none; display: inline-block; width: 0;",
-					after: {
-						contentText: checked ? "☑" : "☐",
-						fontWeight: "bold"
-					},
-				});
+				return createCheckboxDecoration(checked);
 			});
 			const getlistRainbowDecoration = (() => {
 				const hueRotationMultiplier = [0, 5, 9, 2, 6, 7];
