@@ -51,6 +51,7 @@
 		"views": {
 			"markless": [
 				{
+					"icon": "assets/activityBar.svg",
 					"type": "webview",
 					"id": "test.webview",
 					"name": "",
@@ -199,17 +200,15 @@
 		"loglevel": "^1.7.1",
 		"mathjax-full": "^3.1.4",
 		"mdast-util-to-hast": "^10.2.0",
-		"mermaid": "^8.10.1",
+		"mermaid": "^11.6.0",
 		"remark-frontmatter": "^5.0.0",
 		"remark-gfm": "^1.0.0",
-		"remark-math": "^4.0.0",
+		"remark-math": "^6.0.0",
 		"remark-parse": "^9.0.0",
 		"unified": "^9.2.1"
 	},
 	"scripts": {
-		"lint": "eslint .",
-		"pretest": "npm run lint",
-		"test": "node ./test/runTest.js",
+		"lint": "eslint src",
 		"vscode:prepublish": "npm run -S esbuild-base -- --minify",
 		"esbuild-base": "esbuild ./src/extension.js --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
 		"esbuild": "npm run -S esbuild-base -- --sourcemap",
@@ -217,15 +216,13 @@
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.3",
-		"@types/mocha": "^8.0.4",
 		"@types/node": "^12.11.7",
 		"@types/vscode": "^1.56.0",
-		"esbuild": "^0.12.5",
+		"esbuild": "^0.25.3",
 		"eslint": "^7.19.0",
 		"glob": "^7.1.6",
-		"mocha": "^8.2.1",
-		"typescript": "^4.1.3",
-		"vscode-test": "^1.5.0"
+		"prettier": "^3.5.3",
+		"typescript": "^4.1.3"
 	},
 	"__metadata": {
 		"id": "31b769d3-ba13-4af3-a7e8-5257e0df28b1",
